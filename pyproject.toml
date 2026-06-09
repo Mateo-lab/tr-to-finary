@@ -1,0 +1,16 @@
+[project]
+name = "tr-to-finary"
+version = "0.1.0"
+description = "Sync Trade Republic transactions to Finary via CSV export"
+requires-python = ">=3.10"
+dependencies = [
+    "finary-uapi>=0.2.0",
+    "pytr>=0.4.0",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+tr-to-finary = "tr_to_finary.cli:main"

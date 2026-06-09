@@ -1,0 +1,24 @@
+# Credentials & secrets
+credentials.json
+jwt.json
+localCookiesMozilla.txt
+
+# Sync state (user-specific)
+.sync_state.json
+
+# Trade Republic exports (user data)
+*.csv
+
+# pytr data
+all_events.json
+events_with_documents.json
+other_events.json
+~/.pytr/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.venv/

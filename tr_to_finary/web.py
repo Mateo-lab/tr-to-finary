@@ -347,6 +347,64 @@ async def api_save_settings(body: dict):
     return {"ok": True}
 
 
+# ── API: Credentials ──
+@app.post("/api/credentials")
+async def api_save_credentials(body: dict):
+    email = body.get("email", "").strip()
+    password = body.get("password", "")
+
+    if not email or not password:
+        raise HTTPException(400, "Email and password are required")
+
+    creds = {"email": email, "password": password}
+    Path("credentials.json").write_text(
+        json.dumps(creds, indent=2), encoding="utf-8"
+    )
+    return {"ok": True}
+
+
+# ── API: Test Finary login ──
+@app.post("/api/test-login")
+async def api_test_login(body: dict = {}):
+    creds_path = Path("credentials.json")
+    if not creds_path.exists():
+        raise HTTPException(400, "No credentials.json found. Save your credentials first.")
+
+    try:
+        from finary_uapi.signin import signin
+        from finary_uapi.auth import prepare_session
+    except ImportError:
+        raise HTTPException(400, "finary-uapi is not installed. Run: pip install finary-uapi")
+
+    otp_code = body.get("otp_code")
+
+    try:
+        if otp_code:
+            result = signin(otp_code=otp_code)
+        else:
+            result = signin()
+    except RuntimeError as e:
+        if "OTP" in str(e):
+            return {"ok": False, "needs_otp": True}
+        raise HTTPException(400, f"Login failed: {e}")
+
+    status = result.get("response", {}).get("status", "")
+    if status == "complete":
+        # Verify session works
+        try:
+            prepare_session()
+        except Exception as e:
+            raise HTTPException(400, f"Session failed: {e}")
+        return {"ok": True, "needs_otp": False}
+
+    errors = result.get("errors", [])
+    if errors:
+        msgs = ", ".join(e.get("long_message", str(e)) for e in errors)
+        raise HTTPException(400, f"Login failed: {msgs}")
+
+    raise HTTPException(400, f"Login failed (status: {status})")
+
+
 # ── API: Reset ──
 @app.post("/api/reset")
 async def api_reset():

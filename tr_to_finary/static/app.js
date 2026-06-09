@@ -293,11 +293,129 @@ async function loadSettings() {
         const resp = await fetch(`${API}/api/settings`);
         const data = await resp.json();
         if ($("#set-account")) $("#set-account").value = data.account_name || "Trade Republic";
-        if ($("#set-email")) $("#set-email").value = data.email || "";
-        if (data.has_credentials && $("#cred-status")) {
-            $("#cred-status").innerHTML = '<span style="color:var(--green)">&#10003;</span> credentials.json found';
+        if (data.has_credentials) {
+            if ($("#cred-email")) $("#cred-email").value = data.email || "";
+            if ($("#cred-email")) $("#cred-email").placeholder = data.email || "you@example.com";
+            if ($("#cred-password")) $("#cred-password").placeholder = "********";
+            if ($("#cred-status")) {
+                $("#cred-status").innerHTML = '<span class="badge badge-buy">Configured</span>';
+            }
+        } else {
+            if ($("#cred-status")) {
+                $("#cred-status").innerHTML = '<span class="badge badge-sell">Not configured</span>';
+            }
         }
     } catch {}
+}
+
+async function saveCredentials() {
+    const email = $("#cred-email")?.value?.trim();
+    const password = $("#cred-password")?.value;
+
+    if (!email || !password) {
+        showCredResult("Please fill in both email and password.", "alert-warning");
+        return;
+    }
+
+    const btn = $("#btn-save-creds");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+    try {
+        const resp = await fetch(`${API}/api/credentials`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.detail || "Save failed");
+
+        showCredResult("Credentials saved successfully.", "alert-success");
+        if ($("#cred-status")) {
+            $("#cred-status").innerHTML = '<span class="badge badge-buy">Configured</span>';
+        }
+        $("#cred-password").value = "";
+        $("#cred-password").placeholder = "********";
+    } catch (e) {
+        showCredResult("Failed to save: " + e.message, "alert-error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="btn-icon">&#128190;</span> Save Credentials';
+    }
+}
+
+async function testFinaryLogin() {
+    const btn = $("#btn-test-creds");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Testing...';
+
+    try {
+        const resp = await fetch(`${API}/api/test-login`, { method: "POST" });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.detail || "Connection failed");
+
+        if (data.needs_otp) {
+            showCredResult("2FA required. Enter your TOTP code below:", "alert-warning", true);
+        } else if (data.ok) {
+            showCredResult("Connection successful! Finary login works.", "alert-success");
+        }
+    } catch (e) {
+        showCredResult("Connection failed: " + e.message, "alert-error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="btn-icon">&#128268;</span> Test Connection';
+    }
+}
+
+async function submitOTP() {
+    const otp = $("#otp-code")?.value?.trim();
+    if (!otp) return;
+
+    const btn = $("#btn-submit-otp");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Verifying...';
+
+    try {
+        const resp = await fetch(`${API}/api/test-login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ otp_code: otp }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.detail || "OTP failed");
+
+        if (data.ok) {
+            showCredResult("Connection successful! Finary login + 2FA works.", "alert-success");
+        } else {
+            showCredResult("OTP verification failed. Try again.", "alert-error");
+        }
+    } catch (e) {
+        showCredResult("OTP failed: " + e.message, "alert-error");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Verify';
+    }
+}
+
+function showCredResult(msg, cls, showOtp = false) {
+    const el = $("#cred-result");
+    if (!el) return;
+
+    let html = `<div class="alert ${cls}" style="margin-bottom:.75rem">${msg}</div>`;
+    if (showOtp) {
+        html += `
+            <div style="display:flex;gap:.5rem;align-items:end">
+                <div class="form-group" style="margin-bottom:0;flex:1">
+                    <label for="otp-code">2FA Code (TOTP)</label>
+                    <input type="text" id="otp-code" placeholder="123456" maxlength="6"
+                           style="letter-spacing:4px;font-weight:600;text-align:center"
+                           onkeydown="if(event.key==='Enter')submitOTP()">
+                </div>
+                <button class="btn btn-primary" id="btn-submit-otp" onclick="submitOTP()">Verify</button>
+            </div>`;
+    }
+    el.innerHTML = html;
+    show(el);
 }
 
 async function saveSettings() {

@@ -21,15 +21,28 @@
 <div class="card">
     <div class="card-header">
         <h2><span class="card-icon">&#128274;</span> Finary Credentials</h2>
+        <span id="cred-status" style="font-size:.8rem;font-weight:500"></span>
     </div>
-    <p style="color:var(--text-secondary);font-size:.85rem;margin-bottom:.75rem">
-        Stored in <code style="background:var(--bg);padding:.15rem .4rem;border-radius:4px;font-size:.8rem">credentials.json</code> (not synced to git)
+    <p style="color:var(--text-secondary);font-size:.85rem;margin-bottom:1rem">
+        Your Finary login is stored locally in <code style="background:var(--bg);padding:.15rem .4rem;border-radius:4px;font-size:.8rem">credentials.json</code> (never synced to git).
     </p>
-    <p id="cred-status" style="margin-bottom:.75rem;font-weight:500">Checking...</p>
-    <div class="alert alert-info">
-        To update credentials, edit <code>credentials.json</code> directly or run
-        <code>python -m tr_to_finary.cli --setup</code>
+    <div class="form-group">
+        <label for="cred-email">Email</label>
+        <input type="email" id="cred-email" placeholder="you@example.com" autocomplete="off">
     </div>
+    <div class="form-group">
+        <label for="cred-password">Password</label>
+        <input type="password" id="cred-password" placeholder="Your Finary password" autocomplete="off">
+    </div>
+    <div class="btn-group" style="margin-bottom:1rem">
+        <button class="btn btn-primary" id="btn-save-creds" onclick="saveCredentials()">
+            <span class="btn-icon">&#128190;</span> Save Credentials
+        </button>
+        <button class="btn" id="btn-test-creds" onclick="testFinaryLogin()">
+            <span class="btn-icon">&#128268;</span> Test Connection
+        </button>
+    </div>
+    <div id="cred-result" style="display:none"></div>
 </div>
 
 <div class="card">

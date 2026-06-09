@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Transactions - TR to Finary{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Transactions</h1>
+    <p>Browse all parsed transactions from your last import</p>
+</div>
+
+{% if transactions %}
+<!-- Filters -->
+<div class="card" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+    <div class="btn-group">
+        <button class="btn btn-sm {% if filter == 'all' %}btn-primary{% endif %}" onclick="location.href='/transactions'">All ({{ counts.all }})</button>
+        <button class="btn btn-sm {% if filter == 'trading' %}btn-primary{% endif %}" onclick="location.href='/transactions?filter=trading'">Trades ({{ counts.trading }})</button>
+        <button class="btn btn-sm {% if filter == 'dividends' %}btn-primary{% endif %}" onclick="location.href='/transactions?filter=dividends'">Dividends ({{ counts.dividends }})</button>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>ISIN</th>
+                    <th>Shares</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th>Fees</th>
+                    <th>Tax</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transactions %}
+                <tr>
+                    <td>{{ tx.date }}</td>
+                    <td>
+                        {% if tx.type == 'BUY' %}<span class="badge badge-buy">BUY</span>
+                        {% elif tx.type == 'SELL' %}<span class="badge badge-sell">SELL</span>
+                        {% elif tx.type == 'DIVIDEND' %}<span class="badge badge-dividend">DIVIDEND</span>
+                        {% else %}<span class="badge badge-ok">{{ tx.type }}</span>{% endif %}
+                    </td>
+                    <td style="font-weight:500">{{ tx.name }}</td>
+                    <td style="color:var(--text-muted);font-size:.8rem">{{ tx.isin or '-' }}</td>
+                    <td class="num">{% if tx.shares %}{{ "%.6f"|format(tx.shares) }}{% else %}-{% endif %}</td>
+                    <td class="num">{% if tx.price %}{{ "%.2f"|format(tx.price) }} &euro;{% else %}-{% endif %}</td>
+                    <td class="num">{{ "%.2f"|format(tx.amount) }} &euro;</td>
+                    <td class="num">{% if tx.fee %}{{ "%.2f"|format(tx.fee) }} &euro;{% else %}-{% endif %}</td>
+                    <td class="num">{% if tx.tax %}{{ "%.2f"|format(tx.tax) }} &euro;{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-icon">&#128203;</div>
+        <h3>No transactions loaded</h3>
+        <p>Import a CSV or fetch from Trade Republic to see your transactions here.</p>
+        <a href="/sync" class="btn btn-primary" style="margin-top:1rem">
+            <span class="btn-icon">&#128260;</span> Go to Sync
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

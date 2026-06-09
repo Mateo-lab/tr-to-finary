@@ -6,51 +6,59 @@ Sync your **Trade Republic** portfolio to **[Finary](https://finary.com)** autom
 
 ## Features
 
+- **Web UI**: clean dashboard with sync workflow, transaction browser, and settings
+- **CLI**: full-featured command line interface with Rich terminal UI
 - **Two data sources**: manual CSV export from TR app, or automatic fetch via [pytr](https://github.com/pytr-org/pytr)
 - **Smart sync**: only new transactions are processed (tracked via `.sync_state.json`)
-- **Interactive confirmation**: review each create/update before it's applied
 - **Position aggregation**: computes weighted average buy price from all your trades
 - **Dividend tracking**: dividends are tracked per position
 - **Multi-format**: auto-detects Trade Republic native CSV and pytr CSV formats
 
-## Quick Start
+## Quick Start (Windows)
 
-### 1. Install
+### Option A: One-click install
+
+1. Download the project
+2. Double-click **`install.bat`** to install all dependencies
+3. Run `python -m tr_to_finary.cli --setup` to configure credentials
+4. Double-click **`start.bat`** to launch the Web UI
+
+### Option B: Manual install
 
 ```bash
-pip install finary-uapi pytr rich
+pip install finary-uapi pytr rich fastapi "uvicorn[standard]" jinja2 python-multipart
+python -m playwright install chromium
 ```
 
-### 2. Setup
+## Web UI
+
+Launch the web interface:
 
 ```bash
-python -m tr_to_finary.cli --setup
+python -m tr_to_finary.web
 ```
 
-This interactive wizard will:
-- Check dependencies
-- Create your Finary credentials file
-- Test the Finary connection
-- Optionally set up Trade Republic login (pytr)
+Or double-click `start.bat`. Opens automatically at **http://127.0.0.1:8000**
 
-### 3. Sync
+**Pages:**
+- **Dashboard** — sync status, positions overview, quick actions
+- **Sync** — upload CSV or fetch from TR, preview positions, sync to Finary
+- **Transactions** — browse all parsed transactions with filters
+- **Settings** — configure account name, view credentials status, reset sync state
 
-**Automatic (recommended):**
+## CLI Usage
+
 ```bash
-# Preview what would be synced
-python -m tr_to_finary.cli --fetch
-
-# Actually sync
-python -m tr_to_finary.cli --fetch --execute
+python -m tr_to_finary.cli --setup                    # First-time setup wizard
+python -m tr_to_finary.cli --fetch                     # Fetch from TR + preview
+python -m tr_to_finary.cli --fetch --execute           # Fetch + sync to Finary
+python -m tr_to_finary.cli --fetch --execute --yes     # Fetch + sync (auto-approve)
+python -m tr_to_finary.cli export.csv --execute        # From manual CSV export
+python -m tr_to_finary.cli export.csv --parse-only     # Just inspect transactions
+python -m tr_to_finary.cli --fetch --reset --execute   # Force full re-sync
 ```
 
-**From manual CSV export:**
-```bash
-# Export CSV from TR app: Profile > Account Statements > Transaction Export
-python -m tr_to_finary.cli "Exportation de transactions.csv" --execute
-```
-
-## Usage
+### CLI Options
 
 ```
 python -m tr_to_finary.cli [OPTIONS] [CSV_FILE]
@@ -65,31 +73,6 @@ Options:
   --trades-only    Filter to BUY/SELL only
   --reset          Reset sync state (treat all as new)
   --yes, -y        Auto-approve all changes
-```
-
-## Examples
-
-```bash
-# First time setup
-python -m tr_to_finary.cli --setup
-
-# Fetch from TR + preview
-python -m tr_to_finary.cli --fetch
-
-# Fetch + sync + auto-approve
-python -m tr_to_finary.cli --fetch --execute --yes
-
-# From CSV + preview
-python -m tr_to_finary.cli export.csv
-
-# From CSV + sync to specific account
-python -m tr_to_finary.cli export.csv --account "TR Invest" --execute
-
-# Just inspect transactions
-python -m tr_to_finary.cli export.csv --parse-only --trades-only
-
-# Force full re-sync
-python -m tr_to_finary.cli --fetch --reset --execute
 ```
 
 ## How it works
@@ -114,7 +97,6 @@ Trade Republic CSV          Finary
 - `.sync_state.json` tracks which transactions have been synced
 - Re-running the same CSV does nothing
 - New transactions trigger position updates with recalculated averages
-- Interactive confirmation before each update (unless `--yes`)
 
 ## Files
 
@@ -130,13 +112,7 @@ Trade Republic CSV          Finary
 - [finary-uapi](https://github.com/lasconic/finary_uapi) - Finary unofficial API
 - [pytr](https://github.com/pytr-org/pytr) - Trade Republic CLI (optional, for --fetch)
 - [rich](https://github.com/Textualize/rich) - Terminal formatting
-
-## Limitations
-
-- Finary API is unofficial and may change
-- Trade Republic's CSV format may change
-- 2FA is required for Finary (TOTP supported)
-- pytr requires Playwright for AWS WAF token
+- [FastAPI](https://fastapi.tiangolo.com/) + [uvicorn](https://www.uvicorn.org/) - Web UI
 
 ## License
 

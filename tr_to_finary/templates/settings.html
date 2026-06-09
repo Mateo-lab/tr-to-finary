@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Settings - TR to Finary{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Settings</h1>
+    <p>Configure your sync preferences</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2><span class="card-icon">&#9881;</span> Sync Configuration</h2>
+    </div>
+    <div class="form-group">
+        <label for="set-account">Finary Account Name</label>
+        <input type="text" id="set-account" value="Trade Republic" placeholder="Trade Republic">
+    </div>
+    <button class="btn btn-primary" id="btn-save-settings" onclick="saveSettings()">Save</button>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2><span class="card-icon">&#128274;</span> Finary Credentials</h2>
+    </div>
+    <p style="color:var(--text-secondary);font-size:.85rem;margin-bottom:.75rem">
+        Stored in <code style="background:var(--bg);padding:.15rem .4rem;border-radius:4px;font-size:.8rem">credentials.json</code> (not synced to git)
+    </p>
+    <p id="cred-status" style="margin-bottom:.75rem;font-weight:500">Checking...</p>
+    <div class="alert alert-info">
+        To update credentials, edit <code>credentials.json</code> directly or run
+        <code>python -m tr_to_finary.cli --setup</code>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2><span class="card-icon">&#128260;</span> Sync State</h2>
+    </div>
+    <p style="color:var(--text-secondary);font-size:.85rem;margin-bottom:1rem">
+        Reset to treat all transactions as new. Useful if you want to re-sync everything.
+    </p>
+    <button class="btn btn-danger" onclick="resetSyncState()">
+        <span class="btn-icon">&#128465;</span> Reset Sync State
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2><span class="card-icon">&#128214;</span> How to Use</h2>
+    </div>
+    <div style="font-size:.85rem;color:var(--text-secondary);line-height:1.8">
+        <p><strong>1. First time setup:</strong></p>
+        <p style="margin-left:1rem">Run <code style="background:var(--bg);padding:.15rem .4rem;border-radius:4px">python -m tr_to_finary.cli --setup</code> to configure credentials.</p>
+
+        <p style="margin-top:.75rem"><strong>2. Sync via Web UI:</strong></p>
+        <p style="margin-left:1rem">Go to <a href="/sync" style="color:var(--primary)">Sync</a> &rarr; Upload CSV or Fetch from TR &rarr; Preview &rarr; Sync to Finary.</p>
+
+        <p style="margin-top:.75rem"><strong>3. Sync via CLI:</strong></p>
+        <p style="margin-left:1rem"><code style="background:var(--bg);padding:.15rem .4rem;border-radius:4px">python -m tr_to_finary.cli --fetch --execute</code></p>
+
+        <p style="margin-top:.75rem"><strong>4. View transactions:</strong></p>
+        <p style="margin-left:1rem">After importing, go to <a href="/transactions" style="color:var(--primary)">Transactions</a> to browse all parsed data.</p>
+    </div>
+</div>
+{% endblock %}

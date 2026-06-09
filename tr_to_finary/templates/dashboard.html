@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - TR to Finary{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Overview of your Trade Republic sync status</p>
+</div>
+
+<!-- Provider card (Powens-style) -->
+<div class="provider-card">
+    <div class="provider-logos">
+        <div class="provider-logo logo-tr">TR</div>
+        <span class="logo-arrow">&#10132;</span>
+        <div class="provider-logo logo-finary">F</div>
+    </div>
+    <h2>Trade Republic</h2>
+    <div class="provider-status">
+        <span class="dot" id="status-dot"></span>
+        <span id="status-text">Checking...</span>
+    </div>
+    <div class="provider-actions">
+        <a href="/sync" class="btn btn-primary"><span class="btn-icon">&#128260;</span> Sync</a>
+        <a href="/settings" class="btn"><span class="btn-icon">&#9881;</span> Settings</a>
+    </div>
+</div>
+
+<!-- Account rows (Powens-style) -->
+<div class="account-row">
+    <div class="account-check">&#10003;</div>
+    <div class="account-info">
+        <div class="account-name">Trade Republic Portfolio</div>
+        <div class="account-sub" id="dash-account">-</div>
+    </div>
+    <div class="account-value" id="dash-synced">-</div>
+    <span style="color:var(--text-muted);font-size:.8rem;margin-left:.25rem">txs</span>
+</div>
+
+<div class="account-row">
+    <div class="account-check" style="background:var(--primary)">&#128339;</div>
+    <div class="account-info">
+        <div class="account-name">Last Sync</div>
+        <div class="account-sub">Most recent synchronization</div>
+    </div>
+    <div class="account-value" id="dash-last-sync" style="font-size:.85rem">-</div>
+</div>
+
+<!-- Positions (if loaded) -->
+{% if positions %}
+<div class="card" style="margin-top:1.5rem">
+    <div class="card-header">
+        <h2><span class="card-icon">&#128202;</span> Positions ({{ positions|length }})</h2>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>ISIN</th>
+                    <th>Quantity</th>
+                    <th>Avg Price</th>
+                    <th>Invested</th>
+                    <th>Dividends</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in positions %}
+                <tr>
+                    <td style="font-weight:500">{{ p.name }}</td>
+                    <td style="color:var(--text-muted);font-size:.8rem">{{ p.isin }}</td>
+                    <td class="num">{{ "%.4f"|format(p.quantity) }}</td>
+                    <td class="num">{{ "%.2f"|format(p.average_buy_price) }} &euro;</td>
+                    <td class="num">{{ "%.2f"|format(p.total_invested) }} &euro;</td>
+                    <td class="num">{% if p.total_dividends %}{{ "%.2f"|format(p.total_dividends) }} &euro;{% else %}-{% endif %}</td>
+                </tr>
+                {% endfor %}
+                <tr class="total">
+                    <td>Total</td><td></td><td></td><td></td>
+                    <td class="num">{{ "%.2f"|format(total_invested) }} &euro;</td>
+                    <td class="num">{{ "%.2f"|format(total_dividends) }} &euro;</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

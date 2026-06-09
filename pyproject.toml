@@ -7,6 +7,10 @@ dependencies = [
     "finary-uapi>=0.2.0",
     "pytr>=0.4.0",
     "rich>=13.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "jinja2>=3.1.0",
+    "python-multipart>=0.0.9",
 ]
 
 [project.optional-dependencies]
@@ -14,3 +18,4 @@ dev = ["pytest", "ruff"]
 
 [project.scripts]
 tr-to-finary = "tr_to_finary.cli:main"
+tr-to-finary-web = "tr_to_finary.web:main"

@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Sync - TR to Finary{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Sync Portfolio</h1>
+    <p>Import transactions and sync positions to Finary</p>
+</div>
+
+<!-- Progress steps -->
+<div class="steps">
+    <div class="step active">1. Import</div>
+    <div class="step">2. Preview</div>
+    <div class="step">3. Sync</div>
+</div>
+
+<!-- ── Step 1: Upload / Fetch ── -->
+<div id="section-upload">
+    <div class="card">
+        <div class="card-header">
+            <h2><span class="card-icon">&#128228;</span> Upload CSV</h2>
+        </div>
+        <div class="upload-zone">
+            <div class="upload-icon">&#128228;</div>
+            <p>Drop your Trade Republic CSV here</p>
+            <p style="margin-top:.4rem;font-size:.8rem;color:var(--text-muted)">or click to browse</p>
+        </div>
+        <input type="file" id="csv-file" accept=".csv">
+        <button class="btn btn-primary" id="btn-preview-csv" onclick="uploadCSV()" disabled>
+            <span class="btn-icon">&#128269;</span> Preview
+        </button>
+    </div>
+
+    <div class="divider">or</div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2><span class="card-icon">&#128268;</span> Fetch from Trade Republic</h2>
+        </div>
+        <p style="color:var(--text-secondary);margin-bottom:1rem;font-size:.85rem">
+            Automatically fetch transactions via pytr (requires pytr setup)
+        </p>
+        <div style="display:flex;gap:1rem;align-items:end;flex-wrap:wrap">
+            <div class="form-group" style="margin-bottom:0;flex:1;min-width:180px">
+                <label for="fetch-last-days">Last N days (0 = all)</label>
+                <input type="number" id="fetch-last-days" value="0" min="0">
+            </div>
+            <button class="btn btn-primary" id="btn-fetch" onclick="fetchFromTR()">
+                <span class="btn-icon">&#128268;</span> Fetch from TR
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Step 2: Preview ── -->
+<div id="section-preview" style="display:none">
+    <div class="stats" id="preview-stats"></div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2><span class="card-icon">&#128202;</span> Results</h2>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="positions" onclick="switchTab('positions')">Positions</button>
+            <button class="tab" data-tab="transactions" onclick="switchTab('transactions')">Transactions</button>
+        </div>
+
+        <!-- Positions tab -->
+        <div class="tab-content" id="tab-positions">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>ISIN</th>
+                            <th>Quantity</th>
+                            <th>Avg Price</th>
+                            <th>Invested</th>
+                            <th>Dividends</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="positions-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Transactions tab -->
+        <div class="tab-content" id="tab-transactions" style="display:none">
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Name</th>
+                            <th>ISIN</th>
+                            <th>Shares</th>
+                            <th>Price</th>
+                            <th>Amount</th>
+                            <th>Fees</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+        <div class="form-group" style="margin-bottom:0">
+            <label for="sync-account">Finary account</label>
+            <input type="text" id="sync-account" value="Trade Republic" style="width:220px">
+        </div>
+        <div class="btn-group">
+            <button class="btn" onclick="resetFlow()">&#8592; Back</button>
+            <button class="btn btn-success" id="btn-sync" onclick="executeSync()">
+                <span class="btn-icon">&#9889;</span> Sync to Finary
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Step 3: Sync ── -->
+<div id="section-sync" style="display:none">
+    <div id="sync-summary" style="display:none"></div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2><span class="card-icon">&#128295;</span> Sync Log</h2>
+        </div>
+        <div class="log" id="sync-log"></div>
+    </div>
+
+    <div class="btn-group" style="margin-top:1rem">
+        <button class="btn" onclick="resetFlow()">New Sync</button>
+        <a href="/" class="btn btn-primary">Dashboard</a>
+    </div>
+</div>
+{% endblock %}

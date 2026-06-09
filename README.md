@@ -1,6 +1,6 @@
 # TR to Finary
 
-Sync your **Trade Republic** portfolio to **[Finary](https://finary.com)** automatically.
+Sync your **Trade Republic** **portfolio** to **[Finary](https://finary.com)** automatically.
 
 > Finary's Trade Republic provider is broken? No worries. This tool reads your TR transactions and syncs your positions to Finary via its API.
 

@@ -1,4 +1,4 @@
-# TR to Finary
+# TradeRepublic to Finary
 
 Sync your **Trade Republic** **portfolio** to **[Finary](https://finary.com)** automatically.
 
